@@ -9,12 +9,11 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 @Repository
 public class WidgetRepositoryImpl implements WidgetRepository {
-    private ConcurrentMap<UUID, Widget> repository = new ConcurrentHashMap<>();
+    private Map<UUID, Widget> repository = new ConcurrentHashMap<>();
 
     @Override
     public Widget findById(UUID id) {
@@ -27,7 +26,17 @@ public class WidgetRepositoryImpl implements WidgetRepository {
     public List<Widget> findAll(int limit, int offset) {
         List<Widget> widgets = new ArrayList<>(this.repository.values());
 
-        widgets.sort(Comparator.comparingDouble(Widget::getZIndex));
+//        widgets.sort(Comparator.comparingDouble(Widget::getZIndex));
+
+        widgets.sort((o1, o2) -> {
+            if(o1.getZIndex() == null) {
+                return 1;
+            } else if(o2.getZIndex() == null) {
+                return -1;
+            }
+
+            return Double.compare(o1.getZIndex(), o2.getZIndex());
+        });
 
         return widgets.stream()
                 .limit(limit)

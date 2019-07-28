@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -37,27 +38,36 @@ public class WidgetRepositoryImplTest {
     public void get_and_update_thread_safety_test() throws InterruptedException, ExecutionException {
         Widget widget =  Widget.builder()
                 .id(UUID.randomUUID())
+                .y(5)
+                .x(12)
+                .height(12)
+                .width(123)
+                .zIndex(125D)
                 .build();
 
         repository.create(widget);
-        final int threads = 2;
-        Callable<Widget> patchWidget = () -> {
-            widget.setX(100);
-            widget.setY(100);
-            widget.setHeight(500);
-            widget.setWidth(400);
-            widget.setZIndex(11D);
-            return repository.save(widget);
-        };
-        Callable<Widget> getWidget = () -> repository.findById(widget.getId());
+
+        Random random = new Random();
+        widget.setX(random.nextDouble());
+        widget.setY(random.nextDouble());
+        widget.setHeight(random.nextDouble());
+        widget.setWidth(random.nextDouble());
+        widget.setZIndex(random.nextDouble());
+
+        int threads = 2;
         ExecutorService service = Executors.newFixedThreadPool(threads);
-        List<Future<Widget>> futures = service.invokeAll(List.of(getWidget, patchWidget));
+        Callable<Widget> findWidget = () -> repository.findById(widget.getId());
+        Callable<Widget> patchWidget = () -> repository.save(widget);
+
+        List<Future<Widget>> futures = service.invokeAll(List.of(findWidget, patchWidget));
         List<Widget> widgets = new ArrayList<>();
         for (Future<Widget> future : futures) {
-            Widget widget1 = future.get();
-            widgets.add(widget1);
+            assertTrue(future.isDone());
+            widgets.add(future.get());
         }
-        System.out.println(widgets);
+        service.shutdown();
+
+        assertEquals(widgets.get(0), widgets.get(1));
     }
 
 
