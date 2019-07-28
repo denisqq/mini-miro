@@ -17,7 +17,9 @@ public class WidgetImpl implements WidgetRepository {
 
     @Override
     public Widget findById(UUID id) {
-        return Optional.ofNullable(this.repository.get(id)).orElseThrow(NotFoundException::new);
+        if(id == null) throw new NotFoundException("Widget id must not be null");
+
+        return Optional.ofNullable(this.repository.get(id)).orElseThrow(() -> new NotFoundException("Widget not found"));
     }
 
     @Override
@@ -38,8 +40,8 @@ public class WidgetImpl implements WidgetRepository {
     }
 
     @Override
-    public Widget remove(UUID id) {
-        return this.repository.remove(id);
+    public void remove(UUID id) {
+        this.repository.remove(id);
     }
 
     @Override
