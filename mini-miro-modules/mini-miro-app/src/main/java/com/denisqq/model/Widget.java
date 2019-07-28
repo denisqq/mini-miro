@@ -13,7 +13,7 @@ public class Widget {
     private UUID id;
     private double x;
     private double y;
-    private double zIndex;
+    private Double zIndex;
     private double height;
     private double width;
     private LocalDateTime modifiedAt;

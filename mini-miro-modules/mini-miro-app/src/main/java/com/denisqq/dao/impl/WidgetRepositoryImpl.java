@@ -6,13 +6,14 @@ import com.denisqq.model.Widget;
 import org.springframework.stereotype.Repository;
 
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 @Repository
-public class WidgetImpl implements WidgetRepository {
+public class WidgetRepositoryImpl implements WidgetRepository {
     private ConcurrentMap<UUID, Widget> repository = new ConcurrentHashMap<>();
 
     @Override
@@ -36,6 +37,7 @@ public class WidgetImpl implements WidgetRepository {
 
     @Override
     public Widget create(Widget widget) {
+        widget.setModifiedAt(LocalDateTime.now());
         return this.repository.put(widget.getId(), widget);
     }
 
@@ -46,6 +48,7 @@ public class WidgetImpl implements WidgetRepository {
 
     @Override
     public Widget save(Widget widget) {
+        widget.setModifiedAt(LocalDateTime.now());
         this.repository.replace(widget.getId(), widget);
         return widget;
     }

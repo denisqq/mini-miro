@@ -17,7 +17,6 @@
 
     <modules>
         <module>mini-miro-app</module>
-        <module>mini-miro-model</module>
     </modules>
     <properties>
         <org.mapstruct.version>1.2.0.Final</org.mapstruct.version>

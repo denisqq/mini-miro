@@ -1,126 +1,160 @@
-package com.denisqq.web.controller
+package com.denisqq.web.controller;
 
 
-import com.denisqq.service.WidgetService
-import com.denisqq.web.dto.WidgetDto
-import com.denisqq.web.dto.WidgetRequest
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.MediaType
-import org.springframework.test.context.junit4.SpringRunner
-import org.springframework.test.web.servlet.MockMvc
-import java.util.UUID
+import com.denisqq.service.WidgetService;
+import com.denisqq.web.dto.WidgetDto;
+import com.denisqq.web.dto.WidgetRequest;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
+import java.util.UUID;
 
 
-import org.hamcrest.collection.IsCollectionWithSize.hasSize
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
-import org.hamcrest.Matchers.*
-import org.mockito.BDDMockito.given
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
-@RunWith(SpringRunner::class)
-@WebMvcTest(controllers = [WidgetController::class])
-class WidgetControllerTest {
+@RunWith(SpringRunner.class)
+@WebMvcTest(controllers = WidgetController.class)
+public class WidgetControllerTest {
 
     @Autowired
-    private val mvc: MockMvc? = null
+    private MockMvc mvc;
 
     @MockBean
-    private val service: WidgetService? = null
+    private WidgetService service;
 
     @Test
-    @Throws(Exception::class)
-    fun getWidgets() {
-        val widgetDto = WidgetDto.builder()
+    public void getWidgets() throws Exception {
+        WidgetDto widgetDto = WidgetDto.builder()
                 .id(UUID.randomUUID())
-                .x(1.0)
-                .y(1.0)
-                .height(500.0)
-                .width(500.0)
-                .zIndex(5.0)
-                .build()
-        val widgetDtoList = List.of<WidgetDto>(widgetDto)
-        given(service!!.findAll(10, 0)).willReturn(widgetDtoList)
+                .x(1)
+                .y(1)
+                .height(500)
+                .width(500)
+                .zIndex(5D)
+                .build();
+        List<WidgetDto> widgetDtoList = List.of(widgetDto);
+        given(service.findAll(10, 0)).willReturn(widgetDtoList);
 
 
-        mvc!!.perform(get("/widgets")
+        mvc.perform(get("/widgets")
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk)
-                .andExpect(jsonPath("$", hasSize<Any>(1)))
-                .andExpect(jsonPath("$[0].id", `is`(widgetDto.id.toString())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(widgetDto.getId().toString())));
     }
 
     @Test
-    @Throws(Exception::class)
-    fun getWidget() {
-        val widgetDto = WidgetDto.builder()
+    public void getWidget() throws Exception {
+        WidgetDto widgetDto = WidgetDto.builder()
                 .id(UUID.randomUUID())
-                .x(1.0)
-                .y(1.0)
-                .height(500.0)
-                .width(500.0)
-                .zIndex(5.0)
-                .build()
+                .x(1)
+                .y(1)
+                .height(500)
+                .width(500)
+                .zIndex(5D)
+                .build();
 
-        given(service!!.findById(widgetDto.id)).willReturn(widgetDto)
+        given(service.findById(widgetDto.getId())).willReturn(widgetDto);
 
 
-        mvc!!.perform(get("/widgets/" + widgetDto.id)
+        mvc.perform(get("/widgets/" + widgetDto.getId())
                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk)
-                .andExpect(jsonPath("$.id", `is`(widgetDto.id.toString())))
-                .andExpect(jsonPath("$.x", `is`(widgetDto.x)))
-                .andExpect(jsonPath("$.y", `is`(widgetDto.y)))
-                .andExpect(jsonPath("$.height", `is`(widgetDto.height)))
-                .andExpect(jsonPath("$.width", `is`(widgetDto.width)))
-                .andExpect(jsonPath("$.zindex", `is`(widgetDto.zIndex)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(widgetDto.getId().toString())))
+                .andExpect(jsonPath("$.x", is(widgetDto.getX())))
+                .andExpect(jsonPath("$.y", is(widgetDto.getY())))
+                .andExpect(jsonPath("$.height", is(widgetDto.getHeight())))
+                .andExpect(jsonPath("$.width", is(widgetDto.getWidth())))
+                .andExpect(jsonPath("$.zindex", is(widgetDto.getZIndex())));
     }
 
     @Test
-    @Throws(Exception::class)
-    fun addWidget() {
-        val request = WidgetRequest.builder()
-                .x(31.0)
-                .y(2.0)
-                .height(200.0)
-                .width(250.0)
-                .zIndex(1.0)
-                .build()
-
-
-        val widgetDto = WidgetDto.builder()
+    public void addWidget() throws Exception {
+        WidgetDto widgetDto = WidgetDto.builder()
                 .id(UUID.randomUUID())
-                .x(31.0)
-                .y(2.0)
-                .height(200.0)
-                .width(250.0)
-                .zIndex(1.0)
-                .build()
+                .x(31)
+                .y(2)
+                .height(200)
+                .width(250)
+                .zIndex(1D)
+                .build();
 
-        given(service!!.create(request)).willReturn(widgetDto)
+        when(service.create(any(WidgetRequest.class))).thenReturn(widgetDto);
 
-        mvc!!.perform(post("/widgets")
-                .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk)
-                .andExpect(jsonPath("$", `is`(widgetDto)))
+        mvc.perform(
+                post("/widgets")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON_VALUE)
+                        .content("{\"x\":\"31\",\"y\":\"1\",\"height\":\"200\",\"width\":\"250\",\"zindex\":\"1\"}")
+        )
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(widgetDto.getId().toString())))
+                .andExpect(jsonPath("$.x", is(widgetDto.getX())))
+                .andExpect(jsonPath("$.y", is(widgetDto.getY())))
+                .andExpect(jsonPath("$.height", is(widgetDto.getHeight())))
+                .andExpect(jsonPath("$.width", is(widgetDto.getWidth())))
+                .andExpect(jsonPath("$.zindex", is(widgetDto.getZIndex())));
 
 
     }
 
     @Test
-    fun patchWidget() {
+    public void patchWidget() throws Exception {
+
+        WidgetDto widgetDto = WidgetDto.builder()
+                .id(UUID.randomUUID())
+                .x(10)
+                .y(5)
+                .height(100)
+                .width(20)
+                .zIndex(null)
+                .build();
+
+        when(service.update(any(UUID.class), any(WidgetRequest.class))).thenReturn(widgetDto);
+
+        mvc.perform(
+                put("/widgets/" + widgetDto.getId())
+                        .contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
+                        .accept(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
+                        .content("{\"x\":\"10\",\"y\":\"5\",\"height\":\"100\",\"width\":\"20\",\"zindex\":\"null\"}")
+        )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(widgetDto.getId().toString())))
+                .andExpect(jsonPath("$.x", is(widgetDto.getX())))
+                .andExpect(jsonPath("$.y", is(widgetDto.getY())))
+                .andExpect(jsonPath("$.height", is(widgetDto.getHeight())))
+                .andExpect(jsonPath("$.width", is(widgetDto.getWidth())))
+                .andExpect(jsonPath("$.zindex", is(widgetDto.getZIndex())));
+
     }
 
     @Test
-    fun deleteWidget() {
+    public void deleteWidget() throws Exception {
+
+        UUID id = UUID.randomUUID();
+        doNothing().when(service).delete(id);
+        mvc.perform(
+                delete("/widgets/" + id)
+                        .contentType(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
+                        .accept(MediaType.valueOf(MediaType.APPLICATION_JSON_VALUE))
+        ).andExpect(status().isNoContent());
     }
 }
